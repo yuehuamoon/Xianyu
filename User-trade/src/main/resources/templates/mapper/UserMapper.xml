@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 必须和 Mapper 接口全路径一致 -->
+<mapper namespace="commontrade.usertrade.mapper.UserMapper">
+
+    <!-- 动态更新用户：只更新有值的字段 -->
+    <update id="updateUserSelective">
+        UPDATE user
+        <set>
+            <!-- realName 有值则更新 -->
+            <if test="realName != null and realName != ''">
+                realName = #{realName},
+            </if>
+            <!-- nickName 有值则更新 -->
+            <if test="nickName != null and nickName != ''">
+                nickName = #{nickName},
+            </if>
+            <!-- password 有值则更新（注意：实际需先加密） -->
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <!-- wallet 有值则更新（BigDecimal 判 null 即可） -->
+            <if test="wallet != null">
+                wallet = #{wallet},
+            </if>
+            <!-- role 有值则更新（Integer 判 null） -->
+            <if test="role != null">
+                role = #{role},
+            </if>
+            <!-- phone 有值则更新 -->
+            <if test="phone != null and phone != ''">
+                phone = #{phone},
+            </if>
+            <!-- address 有值则更新 -->
+            <if test="address != null and address != ''">
+                address = #{address},
+            </if>
+            <!-- gender 有值则更新 -->
+            <if test="gender != null">
+                gender = #{gender},
+            </if>
+            <!-- avatarUrl 有值则更新 -->
+            <if test="avatarUrl != null and avatarUrl != ''">
+                avatarUrl = #{avatarUrl},
+            </if>
+            <!-- certNo 有值则更新 -->
+            <if test="certNo != null and certNo != ''">
+                certNo = #{certNo},
+            </if>
+            <!-- updateTime 强制更新（无论其他字段是否有值） -->
+            updateTime = NOW(),
+        </set>
+        <!-- 必须指定更新条件（id 是主键，必传） -->
+        WHERE phone = #{phone}
+    </update>
+</mapper>
