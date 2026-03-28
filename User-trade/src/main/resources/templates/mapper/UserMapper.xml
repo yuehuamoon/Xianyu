@@ -6,7 +6,7 @@
 <mapper namespace="commontrade.usertrade.mapper.UserMapper">
 
     <!-- 动态更新用户：只更新有值的字段 -->
-    <update id="updateUserSelective">
+    <update  id="123">
         UPDATE user
         <set>
             <!-- realName 有值则更新 -->

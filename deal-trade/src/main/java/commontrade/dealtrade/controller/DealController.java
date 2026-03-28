@@ -2,6 +2,10 @@ package commontrade.dealtrade.controller;
 
 
 import commontrade.commonyh.pojo.dto.GoodDTO;
+import commontrade.commonyh.pojo.entity.Deal;
+import commontrade.commonyh.pojo.entity.User;
+import commontrade.commonyh.pojo.vo.DealVO;
+import commontrade.commonyh.pojo.vo.UserVO;
 import commontrade.dealtrade.service.DealService;
 import commontrade.dealtrade.utils.JwtUtil;
 import commontrade.commonyh.pojo.dto.Page;
@@ -10,13 +14,13 @@ import commontrade.commonyh.pojo.result.Result;
 import commontrade.commonyh.pojo.dto.DealDTO;
 import commontrade.itemtrade.mapper.ItemMapper;
 import commontrade.itemtrade.service.ItemService;
+import commontrade.usertrade.mapper.UserMapper;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -31,6 +35,8 @@ public class DealController {
     private DealService dealService;
     @Autowired
     private ItemMapper itemMapper;
+    @Autowired
+    private UserMapper userMapper;
 
     @PostMapping("/info")
     public Result<List<DealDTO>> ShowUser(@RequestBody Page page) {
@@ -41,6 +47,101 @@ public class DealController {
     public Result<DealDTO> SelectByID(@RequestBody DealDTO deal) {
         DealDTO deals = dealService.selectByID(deal);
         return Result.success(deals);
+    }
+    @PostMapping("/selectBySellerID")
+    public Result<List<DealVO>> SelectBySellerID(@RequestBody DealDTO deal) {
+        // 1. 查询订单列表 【1次】
+        List<DealDTO> deals = dealService.selectBySellerID(deal);
+        // 空数据直接返回
+        if (deals == null || deals.isEmpty()) {
+            return Result.success(new ArrayList<>());
+        }
+
+        // ----------------------
+        // 批量提取所有用户ID（去重）
+        // ----------------------
+        Set<Integer> userIds = new HashSet<>();
+        for (DealDTO dto : deals) {
+            userIds.add(dto.getBuyerId());
+            userIds.add(dto.getSellerId());
+        }
+
+        // ----------------------
+        // 批量一次查询所有用户 【1次】
+        // ----------------------
+        List<User> userList = userMapper.selectAll();
+
+        // ----------------------
+        // 转成 MAP 方便快速获取
+        // ----------------------
+        Map<Integer, User> userMap = new HashMap<>();
+        for (User user : userList) {
+            userMap.put(user.getId(), user);
+        }
+
+        // ----------------------
+        // 组装 VO（内存操作，极快）
+        // ----------------------
+        List<DealVO> dealVOs = new ArrayList<>();
+        for (DealDTO dto : deals) {
+            DealVO vo = new DealVO();
+            BeanUtils.copyProperties(dto, vo);
+            GoodDTO goodDTO = itemMapper.selectById(dto.getGoodId());
+            // 从map拿，不查库
+            User buyer = userMap.get(dto.getBuyerId());
+            User seller = userMap.get(dto.getSellerId());
+
+            vo.setBuyerName(buyer != null ? buyer.getNickName() : "未知用户");
+            vo.setSellerName(seller != null ? seller.getNickName() : "未知用户");
+            vo.setGoodName(goodDTO.getName());
+            dealVOs.add(vo);
+        }
+
+        return Result.success(dealVOs);
+    }
+
+    @PostMapping("/selectByBuyerID")
+    public Result<List<DealVO>> SelectByBuyerID(@RequestBody DealDTO deal) {
+        // 1. 查询订单列表 【1次】
+        List<DealDTO> deals = dealService.selectByBuyerID(deal);
+
+        // 空判断
+        if (deals == null || deals.isEmpty()) {
+            return Result.success(new ArrayList<>());
+        }
+
+        // 2. 提取所有需要的用户ID（买家 + 卖家）
+        Set<Integer> userIds = new HashSet<>();
+        for (DealDTO dto : deals) {
+            userIds.add(dto.getBuyerId());
+            userIds.add(dto.getSellerId());
+        }
+
+        // 3. 批量查询用户 【1次】
+        List<User> userList = userMapper.selectAll();
+
+        // 4. 转成Map，快速查找
+        Map<Integer, User> userMap = new HashMap<>();
+        for (User user : userList) {
+            userMap.put(user.getId(), user);
+        }
+
+        // 5. 组装VO（批量赋值，不查库）
+        List<DealVO> dealVOs = new ArrayList<>();
+        for (DealDTO dto : deals) {
+            DealVO vo = new DealVO();
+            BeanUtils.copyProperties(dto, vo);
+            GoodDTO goodDTO = itemMapper.selectById(dto.getGoodId());
+            User buyer = userMap.get(dto.getBuyerId());
+            User seller = userMap.get(dto.getSellerId());
+
+            vo.setBuyerName(buyer != null ? buyer.getNickName() : "未知用户");
+            vo.setSellerName(seller != null ? seller.getNickName() : "未知用户");
+            vo.setGoodName(goodDTO.getName());
+            dealVOs.add(vo);
+        }
+
+        return Result.success(dealVOs);
     }
 
 

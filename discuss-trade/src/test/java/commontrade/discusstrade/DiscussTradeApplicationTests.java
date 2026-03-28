@@ -1,10 +1,10 @@
-package commontrade.discuss;
+package commontrade.discusstrade;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DiscussApplicationTests {
+class DiscussTradeApplicationTests {
 
     @Test
     void contextLoads() {

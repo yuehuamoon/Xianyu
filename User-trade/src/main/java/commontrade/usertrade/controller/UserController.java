@@ -19,7 +19,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
-@CrossOrigin(origins = "http://localhost:5173") // 允许前端开发服务器访问
+@CrossOrigin(origins = "*") // 允许前端开发服务器访问
 @Slf4j
 public class UserController {
 
@@ -46,7 +46,7 @@ public class UserController {
         if (userService.login(user) != null) {
             // 2. 构建JWT载荷
             Map<String, Object> claims = new HashMap<>();
-            claims.put("userId", userVO.getCertNo());
+            claims.put("userId", userVO.getId());
             claims.put("phone", user.getPhone());
             claims.put("role", userVO.getRole());
             claims.put("address", userVO.getAddress());

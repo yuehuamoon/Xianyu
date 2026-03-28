@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>原生 WebSocket 测试（无外部库）</title>
+    <style>
+        .container { margin: 20px; }
+        .btn { margin: 5px; padding: 8px 15px; cursor: pointer; }
+        #messageBox {
+            width: 600px;
+            height: 300px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+            overflow-y: auto;
+        }
+        #messageInput { padding: 8px; width: 300px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>原生 WebSocket 测试（无外部库）</h1>
+
+    <div>
+        <button class="btn" onclick="connect()">连接 WebSocket</button>
+        <button class="btn" onclick="disconnect()">断开连接</button>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <input type="text" id="messageInput" placeholder="输入消息">
+        <button class="btn" onclick="sendMessage()">发送消息</button>
+    </div>
+
+    <div id="messageBox"></div>
+</div>
+
+<script>
+    let ws = null;
+    const WS_PORT = 8085;
+
+    // 获取 Token
+    async function getToken() {
+        try {
+            const response = await fetch("http://localhost:8081/user/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    phone: "123",
+                    password: "202cb962ac59075b964b07152d234b70"
+                })
+            });
+            const result = await response.json();
+            return result.data;
+        } catch (err) {
+            console.error("拿 Token 失败", err);
+            return null;
+        }
+    }
+
+    // 连接
+    async function connect() {
+        if (ws) { ws.close(); }
+
+        const token = await getToken();
+        if (!token) {
+            appendMessage("❌ Token 获取失败");
+            return;
+        }
+
+        ws = new WebSocket(`ws://localhost:${WS_PORT}/ws?token=${encodeURIComponent(token)}`);
+
+        ws.onopen = () => {
+            appendMessage("✅ 连接成功！");
+        };
+
+        // ======================
+        // ✅【关键】接收广播消息
+        // ======================
+        ws.onmessage = (event) => {
+            appendMessage("📢 收到：" + event.data);
+        };
+
+        ws.onclose = () => appendMessage("🔌 连接关闭");
+        ws.onerror = (err) => appendMessage("❌ 连接失败");
+    }
+
+    // 断开
+    function disconnect() {
+        if (ws) {
+            ws.close();
+            appendMessage("📤 已断开");
+        }
+    }
+
+    // 发送
+    function sendMessage() {
+        if (!ws || ws.readyState !== WebSocket.OPEN) {
+            appendMessage("⚠️ 未连接");
+            return;
+        }
+
+        const input = document.getElementById('messageInput');
+        const toUserIdInput = 21;
+
+        const msg = input.value.trim();
+        const toUserId = 123;
+
+        if (!msg) return;
+
+
+
+        ws.send(JSON.stringify({
+            type: "private",
+            toUserId: 123,
+            content: msg
+        }));
+
+        appendMessage(`✉️ 发给 ${toUserId}：${msg}`);
+
+        input.value = "";
+    }
+
+    // 显示消息
+    function appendMessage(content) {
+        const box = document.getElementById('messageBox');
+        const p = document.createElement('p');
+        p.textContent = new Date().toLocaleString() + " - " + content;
+        box.appendChild(p);
+        box.scrollTop = box.scrollHeight;
+    }
+</script>
+</body>
+</html>

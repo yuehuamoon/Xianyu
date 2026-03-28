@@ -6,7 +6,7 @@
         <groupId>com.commontrade</groupId>
         <artifactId>xianyu-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>common-trade</groupId>
     <artifactId>Gateway</artifactId>

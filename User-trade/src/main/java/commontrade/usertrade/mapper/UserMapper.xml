@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <!-- namespace 必须和 Mapper 接口全路径一致 -->
-<mapper namespace="commontrade.usertrade.mapper.UserMapper">
+<mapper >
 
     <!-- 动态更新用户：只更新有值的字段 -->
     <update id="updateUserSelective">
