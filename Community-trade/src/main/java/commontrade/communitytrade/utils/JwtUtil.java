@@ -1,4 +1,4 @@
-package commontrade.discusstrade.Utils;
+package commontrade.itemtrade.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -18,10 +18,10 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${jwt.expiration}00000")
+    @Value("${jwt.expiration}")
     private long expirationTime;
 
-    public String genJwt(Map claims) {
+    public String genJwt(Map<String, Object> claims) {
         Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
         return Jwts.builder()
                 .claims(claims)

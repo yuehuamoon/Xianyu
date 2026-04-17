@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="commontrade.discusstrade.mapper.PrivateMessageMapper">
+
+    <resultMap id="BaseResultMap" type="commontrade.discusstrade.entity.PrivateMessage">
+        <id column="id" property="id"/>
+        <result column="from_user_id" property="fromUserId"/>
+        <result column="to_user_id" property="toUserId"/>
+        <result column="content" property="content"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="read_time" property="readTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, from_user_id, to_user_id, content, status, create_time, read_time
+    </sql>
+
+    <!-- 插入消息 -->
+    <insert id="insert" parameterType="commontrade.discusstrade.entity.PrivateMessage" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO private_message (from_user_id, to_user_id, content, status, create_time)
+        VALUES (#{fromUserId}, #{toUserId}, #{content}, #{status}, #{createTime})
+    </insert>
+
+    <!-- 根据ID查询 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM private_message
+        WHERE id = #{id}
+    </select>
+
+    <!-- 查询两个用户之间的聊天记录 -->
+    <select id="selectChatHistory" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM private_message
+        WHERE (from_user_id = #{userId1} AND to_user_id = #{userId2})
+           OR (from_user_id = #{userId2} AND to_user_id = #{userId1})
+        ORDER BY create_time ASC
+    </select>
+
+    <!-- 查询用户未读消息 -->
+    <select id="selectUnreadMessages" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM private_message
+        WHERE to_user_id = #{userId} AND status = 0
+        ORDER BY create_time ASC
+    </select>
+
+    <!-- 查询用户未读消息数量 -->
+    <select id="countUnreadMessages" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM private_message
+        WHERE to_user_id = #{userId} AND status = 0
+    </select>
+
+    <!-- 标记消息为已读 -->
+    <update id="updateStatusToRead">
+        UPDATE private_message
+        SET status = 1, read_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 标记用户所有未读消息为已读 -->
+    <update id="updateAllStatusToRead">
+        UPDATE private_message
+        SET status = 1, read_time = NOW()
+        WHERE to_user_id = #{userId} AND status = 0
+    </update>
+
+    <!-- 查询用户最近联系人 -->
+    <select id="selectRecentContacts" resultType="java.lang.Long">
+        SELECT DISTINCT from_user_id
+        FROM private_message
+        WHERE to_user_id = #{userId}
+    </select>
+
+</mapper>

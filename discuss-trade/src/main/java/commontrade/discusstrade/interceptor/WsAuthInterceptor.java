@@ -28,7 +28,7 @@ public class WsAuthInterceptor implements HandshakeInterceptor {
     public boolean beforeHandshake(ServerHttpRequest request,
                                    ServerHttpResponse response,
                                    WebSocketHandler wsHandler,
-                                   Map<String, Object> attributes) {
+                                   Map attributes) {
 
         ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
         HttpServletRequest req = servletRequest.getServletRequest();
@@ -42,8 +42,8 @@ public class WsAuthInterceptor implements HandshakeInterceptor {
         }
 
         // ==================== 核心：校验 Token 并获取 userId ====================
-        String userStr = jwtUtil.parseJwt(token).get("userId", String.class); // 你自己的JWT工具
-        Long userId = Long.parseLong(userStr);
+        Integer userStr = jwtUtil.parseJwt(token).get("userId", Integer.class); // 你自己的JWT工具
+        Long userId = Long.valueOf(userStr);
 
         System.out.println(userId);
         // 把真实 userId 存入会话属性
