@@ -61,4 +61,14 @@ public interface DealMapper {
     })
     int updateDealSelective(@Param("deal") DealDTO deal);
 
+    // 统计接口
+    @Select("select count(*) from deal")
+    int countAll();
+
+    @Select("select count(*) from deal where status = #{status}")
+    int countByStatus(@Param("status") int status);
+
+    @Select("select sum(unitPrice * count) from deal where status = 3")
+    Long sumCompletedAmount();
+
 }

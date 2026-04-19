@@ -1,5 +1,6 @@
 package commontrade.itemtrade.utils;
 
+import commontrade.commonyh.pojo.result.Result;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -11,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 
 @Component
 public class JwtUtil {
@@ -21,7 +23,7 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private long expirationTime;
 
-    public String genJwt(Map<String, Object> claims) {
+    public String genJwt(Map<String, Objects> claims) {
         Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
         return Jwts.builder()
                 .claims(claims)

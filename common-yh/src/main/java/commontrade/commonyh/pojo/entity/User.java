@@ -50,6 +50,7 @@ public class User {
      */
     private String phone;
 
+    private String email;
     /**
      * 地址
      */

@@ -1,8 +1,9 @@
-package commontrade.itemtrade.client;
+package commontrade.es.client;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfiguration;
+
 
 @Configuration
 public class MyClientConfig extends ElasticsearchConfiguration {

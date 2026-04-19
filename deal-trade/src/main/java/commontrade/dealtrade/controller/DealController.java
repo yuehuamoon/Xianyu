@@ -84,17 +84,19 @@ public class DealController {
         // ----------------------
         List<DealVO> dealVOs = new ArrayList<>();
         for (DealDTO dto : deals) {
-            DealVO vo = new DealVO();
-            BeanUtils.copyProperties(dto, vo);
-            GoodDTO goodDTO = itemMapper.selectById(dto.getGoodId());
-            // 从map拿，不查库
-            User buyer = userMap.get(dto.getBuyerId());
-            User seller = userMap.get(dto.getSellerId());
 
-            vo.setBuyerName(buyer != null ? buyer.getNickName() : "未知用户");
-            vo.setSellerName(seller != null ? seller.getNickName() : "未知用户");
-            vo.setGoodName(goodDTO.getName());
-            dealVOs.add(vo);
+                DealVO vo = new DealVO();
+                BeanUtils.copyProperties(dto, vo);
+                GoodDTO goodDTO = itemMapper.selectById(dto.getGoodId());
+                // 从map拿，不查库
+                User buyer = userMap.get(dto.getBuyerId());
+                User seller = userMap.get(dto.getSellerId());
+
+                vo.setBuyerName(buyer != null ? buyer.getNickName() : "未知用户");
+                vo.setSellerName(seller != null ? seller.getNickName() : "未知用户");
+                vo.setGoodName(goodDTO.getName());
+                dealVOs.add(vo);
+
         }
 
         return Result.success(dealVOs);
@@ -129,16 +131,21 @@ public class DealController {
         // 5. 组装VO（批量赋值，不查库）
         List<DealVO> dealVOs = new ArrayList<>();
         for (DealDTO dto : deals) {
-            DealVO vo = new DealVO();
-            BeanUtils.copyProperties(dto, vo);
-            GoodDTO goodDTO = itemMapper.selectById(dto.getGoodId());
-            User buyer = userMap.get(dto.getBuyerId());
-            User seller = userMap.get(dto.getSellerId());
+            try {
+                DealVO vo = new DealVO();
+                BeanUtils.copyProperties(dto, vo);
+                GoodDTO goodDTO = itemMapper.selectById(dto.getGoodId());
+                System.out.println(goodDTO);
+                User buyer = userMap.get(dto.getBuyerId());
+                User seller = userMap.get(dto.getSellerId());
 
-            vo.setBuyerName(buyer != null ? buyer.getNickName() : "未知用户");
-            vo.setSellerName(seller != null ? seller.getNickName() : "未知用户");
-            vo.setGoodName(goodDTO.getName());
-            dealVOs.add(vo);
+                vo.setBuyerName(buyer != null ? buyer.getNickName() : "未知用户");
+                vo.setSellerName(seller != null ? seller.getNickName() : "未知用户");
+                vo.setGoodName(goodDTO.getName());
+                dealVOs.add(vo);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
         }
 
         return Result.success(dealVOs);
@@ -163,6 +170,7 @@ public class DealController {
 
         if (dealDTO.getId() != null && dealDTO.getStatus() != null) {
             int msg= dealService.deleteByID(dealDTO);
+            System.out.println(msg);
             return Result.success(msg);
         }
         return Result.error("error");
@@ -188,6 +196,20 @@ public class DealController {
         dealService.balancePay(dealDTO, "adminToSeller");
 
         return Result.success();
+    }
+
+    // 统计接口
+    @GetMapping("/count")
+    public Result<Map<String, Object>> count() {
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("total", dealService.countAll());
+        stats.put("pending", dealService.countByStatus(0));   // status=0 待付款
+        stats.put("paid", dealService.countByStatus(1));      // status=1 已付款
+        stats.put("cancelled", dealService.countByStatus(2)); // status=2 已取消
+        stats.put("completed", dealService.countByStatus(3)); // status=3 已完成
+        stats.put("refunded", dealService.countByStatus(4));  // status=4 已退款
+        stats.put("totalAmount", dealService.sumCompletedAmount()); // 已完成订单总金额
+        return Result.success(stats);
     }
 
 }

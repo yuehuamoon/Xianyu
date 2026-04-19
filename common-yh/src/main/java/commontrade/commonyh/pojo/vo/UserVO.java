@@ -21,10 +21,11 @@ public class UserVO {
     private Double wallet; // 注意类型：金额推荐用Double/Decimal
     private String role;
     private String phone;
+    private String email;
     private String address;
     private String gender; // 性别：0=未知，1=男，2=女
     private String avatarUrl;
     private String certNo;
     private Integer status; // 状态：1=启用
-
+    private String code;
 }

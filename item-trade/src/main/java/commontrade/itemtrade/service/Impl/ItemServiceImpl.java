@@ -10,6 +10,7 @@ import commontrade.itemtrade.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ItemServiceImpl implements ItemService {
@@ -21,7 +22,14 @@ public class ItemServiceImpl implements ItemService {
     public List<Good> selectAll(int page) {
         return itemMapper.selectAll(page);
     }
+    @Override
+    public List<Good> selectAllGood() {
+        return itemMapper.selectAllGood();
+    }
 
+    public List<GoodDTO> selectBySellerId(int sellerId) {
+        return itemMapper.selectBySellerId(sellerId);
+    }
     @Override
     public GoodDTO selectByID(int id) {
         return itemMapper.selectById(id);
@@ -54,5 +62,21 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public int updateGood(int starus, int id){
         return itemMapper.updateGood(starus, id);
+    }
+
+    // 统计方法实现
+    @Override
+    public int countAll() {
+        return itemMapper.countAll();
+    }
+
+    @Override
+    public int countByStatus(int status) {
+        return itemMapper.countByStatus(status);
+    }
+
+    @Override
+    public List<Map<String, Object>> countGroupByLabel() {
+        return itemMapper.countGroupByLabel();
     }
 }

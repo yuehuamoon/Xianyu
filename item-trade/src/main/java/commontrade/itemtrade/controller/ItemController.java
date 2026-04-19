@@ -16,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -37,11 +39,21 @@ public class ItemController {
         return Result.success(goods);
     }
 
+    @PostMapping("/selectAll")
+    public Result<List<Good>> SelectAllgood() {
+        List<Good> goods = itemService.selectAllGood();
+        return Result.success(goods);
+    }
+
     @PostMapping("/goodID")
     public Result SelectByID(@RequestBody Page page) {
         return Result.success(itemService.selectByID(page.getPage()));
     }
 
+    @PostMapping("/selectByUserId")
+    public Result<List<GoodDTO>> SelectByUserId(@RequestBody User user) {
+        return Result.success(itemService.selectBySellerId(user.getId()));
+    }
     @PostMapping("/search")
     public Result search(@RequestBody GoodDTO goodDTO) {
         if (goodDTO.getLabel() != null && goodDTO.getLabel().trim().length()>0) {
@@ -114,6 +126,18 @@ public class ItemController {
     @PostMapping("/review/info")
     public Result<List<Good>> info(@RequestBody Page page) {
         return Result.success(itemService.selectAll(page.getPage()));
+    }
+
+    // 统计接口
+    @GetMapping("/count")
+    public Result<Map<String, Object>> count() {
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("total", itemService.countAll());
+        stats.put("active", itemService.countByStatus(1));   // status=1 在售
+        stats.put("sold", itemService.countByStatus(2));     // status=2 已售
+        stats.put("offline", itemService.countByStatus(0));  // status=0 下架
+        stats.put("category", itemService.countGroupByLabel());
+        return Result.success(stats);
     }
 
 }

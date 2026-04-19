@@ -19,14 +19,17 @@ public interface UserMapper {
     @Select("select * from user where phone=#{phone}")
     UserVO selectByPhone(String phone);
 
+    @Select("select  * from user where id=#{id}")
+    UserVO selectById(int id);
+
     @Select("select * from user where phone=#{user.phone} and password=#{user.password}")
     UserVO login(@Param("user") LoginDTO user);
 
     @Select("select * from user where id=#{id}")
     User selectByID(int id);
 
-    @Insert("INSERT INTO user (realName, nickName, password, wallet, role, phone, address, gender, avatarUrl, certNo, status) " +
-            "VALUES (#{realName}, #{nickName}, #{password}, #{wallet}, #{role}, #{phone}, #{address}, #{gender}, #{avatarUrl}, #{certNo}, 1)")
+    @Insert("INSERT INTO user (realName, nickName, password, wallet, role, phone, address, gender, avatarUrl, certNo, status, email) " +
+            "VALUES (#{realName}, #{nickName}, #{password}, #{wallet}, #{role}, #{phone}, #{address}, #{gender}, #{avatarUrl}, #{certNo}, 1, #{email})")
     int registerUser(UserVO user);
 
     @Delete("delete from user where phone=#{phone}")
@@ -56,6 +59,14 @@ public interface UserMapper {
     @Update("update user set status=#{status} where phone=#{phone}")
     int identifyByAdmin(int status, @Param("phone") String phone);
 
+    // 统计接口
+    @Select("select count(*) from user")
+    int countAll();
 
+    @Select("select count(*) from user where status = #{status}")
+    int countByStatus(@Param("status") int status);
+
+    @Select("select count(*) from user where role = #{role}")
+    int countByRole(@Param("role") int role);
 
 }

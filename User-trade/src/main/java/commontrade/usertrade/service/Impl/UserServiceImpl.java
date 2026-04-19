@@ -21,6 +21,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserVO selectById(int id) {
+        return userMapper.selectById(id);
+    }
+
+    @Override
     public List<User> selectByPage(Integer page) {
         return userMapper.selectByPage(page);
     }
@@ -58,5 +63,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public int identifyByAdmin(int starus, String phone){
         return userMapper.identifyByAdmin(starus,phone);
+    }
+
+    // 统计方法实现
+    @Override
+    public int countAll() {
+        return userMapper.countAll();
+    }
+
+    @Override
+    public int countByStatus(int status) {
+        return userMapper.countByStatus(status);
+    }
+
+    @Override
+    public int countByRole(int role) {
+        return userMapper.countByRole(role);
     }
 }

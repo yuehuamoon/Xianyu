@@ -23,4 +23,9 @@ public interface DealService {
     int balancePay(DealDTO deal, String type);
     int wechatPay(DealDTO deal);
     int aliPay(DealDTO deal);
+
+    // 统计方法
+    int countAll();
+    int countByStatus(int status);
+    Long sumCompletedAmount();
 }

@@ -1,5 +1,6 @@
-package commontrade.itemtrade.utils;
+package commontrade.communitytrade.utils;
 
+import commontrade.commonyh.pojo.result.Result;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

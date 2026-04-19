@@ -2,69 +2,189 @@ package commontrade.communitytrade.mapper;
 
 
 
+import commontrade.commonyh.pojo.entity.*;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
 @Mapper
-public interface ItemMapper {
+public interface CommunityMapper{
 
-    @Select("select * from good_info limit #{page}, 10")
-    List<Good> selectAll(int page);
+    @Select("select * from post ORDER BY createTime DESC")
+    List<Post> selectPosts();
 
-    @Select("select * from good_info where seller_id=#{id}")
-    List<GoodDTO> selectBySellerId(int id);
-    @Select("select * from good_info where label like concat('%', #{type}, '%')")
-    List<GoodDTO> selectByLabel(String type);
+    @Select("select * from post where id=#{id}")
+    Post selectPostById(Integer id);
 
-    @Select("select * from good_info where id=#{id}")
-    GoodDTO selectById(int id);
+    @Insert("\n" +
+            "INSERT INTO `post` (title,content,status,reviewStatu,userId,userName,imgUrls,ip,createTime,updateTime) VALUES\n" +
+            "(#{title},#{content},1,0,#{userId},#{userName},'[\"food.jpg\"]',NULL,NOW(),NOW());")
+    int insertPost(Post post);
 
-    @Select("select * from good_info where name like concat('%', #{keyword}, '%') " +
-            "or content like concat('%', #{keyword}, '%')" +
-            "or label like concat('%', #{keyword}, '%')" +
-            "or address like concat('%', #{keyword}, '%')")
-    List<GoodDTO> search(String keyword);
+    @Update("update post set status=0 where id=#{id}")
+    int deletePost(Integer id);
 
+    @Update("<script>" +
+            "UPDATE post " +
+            "<set>" +
+            "   <if test='title != null'>title = #{title},</if>" +
+            "   <if test='content != null'>content = #{content},</if>" +
+            "   <if test='status != null'>status = #{status},</if>" +
+            "   <if test='reviewStatu != null'>reviewStatu = #{reviewStatu},</if>" +
+            "   <if test='imgUrls != null'>imgUrls = #{imgUrls},</if>" +
+            "   <if test='likes != null'>likes = #{likes},</if>" +
+            "   <if test='favorite != null'>favorite = #{favorite},</if>" +
+            "   <if test='ip != null'>ip = #{ip},</if>" +
+            "   updateTime = NOW()" +
+            "</set>" +
+            "WHERE id = #{id}" +
+            "</script>")
+    int updatePost(Post post);
 
-    @Insert("INSERT INTO good_info (" +
-            "name, content, unit_price, count, img_url, label, " +
-            "status, address, view_count, favorite_count, seller_id" +
-            ") VALUES (" +
-            "#{good.name}, #{good.content}, #{good.unitPrice}, #{good.count}, #{good.imgUrl}, #{good.label}, " +
-            "#{good.status}, #{good.address}, #{good.viewCount}, #{good.favoriteCount}, #{good.sellerId}" +
-            ")")
-    int insertGood(@Param("good") GoodDTO good);
+    @Select("select  * from comment_good where deleteStatu=0 and status=1 and goodId=#{id}")
+    List<CommentGood> selectCommentGood(Integer id);
 
-    @Delete("delete from good_info where id=#{id}")
-    int deleteByID(int id);
+    @Select("select * from comment_user where deleteStatu=0 and status=1 and toUserId=#{id}")
+    List<CommentUser> selectCommentUser(Integer id);
 
-    @Update({
-            "<script>",
-            "UPDATE good_info",
-            "<set>",
-            "   <if test='good.sellerId != null'>seller_id = #{good.sellerId},</if>",
-            "   <if test='good.name != null and good.name != \"\"'>name = #{good.name},</if>",
-            "   <if test='good.content != null and good.content != \"\"'>content = #{good.content},</if>",
-            "   <if test='good.unitPrice != null'>unit_price = #{good.unitPrice},</if>",
-            "   <if test='good.count != null'>count = #{good.count},</if>",
-            "   <if test='good.imgUrl != null and good.imgUrl != \"\"'>img_url = #{good.imgUrl},</if>",
-            "   <if test='good.label != null and good.label != \"\"'>label = #{good.label},</if>",
-            "   <if test='good.status != null'>status = #{good.status},</if>",
-            "   <if test='good.address != null and good.address != \"\"'>address = #{good.address},</if>",
-            "   <if test='good.viewCount != null'>view_count = #{good.viewCount},</if>",
-            "   <if test='good.favoriteCount != null'>favorite_count = #{good.favoriteCount},</if>",
-            "   update_time = CURRENT_TIMESTAMP",
-            "</set>",
-            "WHERE id = #{good.id}",
-            "</script>"
-    })
-    int updateItemSelective(@Param("good") GoodDTO good);
+    @Select("select * from comment_post where deleteStatu=0 and status=1 and postId=#{id}")
+    List<CommentPost> selectCommentPost(Integer id);
 
 
-    @Update("update good_info set status=#{status} where id=#{id}")
-    int updateGood(int status, int id);
+    @Insert("""
+        <script>
+        INSERT INTO comment_good
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="userId != null">userId,</if>
+            <if test="userName != null and userName != ''">userName,</if>
+            <if test="goodId != null">goodId,</if>
+            <if test="goodName != null and goodName != ''">goodName,</if>
+            <if test="attitude != null">attitude,</if>
+            <if test="content != null and content != ''">content,</if>
+            <if test="deleteStatu != null">deleteStatu,</if>
+            <if test="status != null">status,</if>
+            <if test="reviewStatu != null">reviewStatu,</if>
+            <if test="toUser != null">toUser,</if>
+            <if test="likes != null">likes,</if>
+            <if test="createTime != null">createTime,</if>
+            <if test="updateTime != null">updateTime,</if>
+            <if test="deleteTime != null">deleteTime,</if>
+            <if test="ip != null and ip != ''">ip,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="userName != null and userName != ''">#{userName},</if>
+            <if test="goodId != null">#{goodId},</if>
+            <if test="goodName != null and goodName != ''">#{goodName},</if>
+            <if test="attitude != null">#{attitude},</if>
+            <if test="content != null and content != ''">#{content},</if>
+            <if test="deleteStatu != null">#{deleteStatu},</if>
+            <if test="status != null">#{status},</if>
+            <if test="reviewStatu != null">#{reviewStatu},</if>
+            <if test="toUser != null">#{toUser},</if>
+            <if test="likes != null">#{likes},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="deleteTime != null">#{deleteTime},</if>
+            <if test="ip != null and ip != ''">#{ip},</if>
+        </trim>
+        </script>
+    """)
+    int insertCommentGood(CommentGood commentGood);
+
+
+    @Insert("""
+        <script>
+        INSERT INTO comment_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="userId != null">userId,</if>
+            <if test="userName != null and userName != ''">userName,</if>
+            <if test="toUserId != null">toUserId,</if>
+            <if test="toUserName != null and toUserName != ''">toUserName,</if>
+            <if test="attitude != null">attitude,</if>
+            <if test="content != null and content != ''">content,</if>
+            <if test="deleteStatu != null">deleteStatu,</if>
+            <if test="status != null">status,</if>
+            <if test="reviewStatu != null">reviewStatu,</if>
+            <if test="likes != null">likes,</if>
+            <if test="createTime != null">createTime,</if>
+            <if test="updateTime != null">updateTime,</if>
+            <if test="deleteTime != null">deleteTime,</if>
+            <if test="ip != null and ip != ''">ip,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="userName != null and userName != ''">#{userName},</if>
+            <if test="toUserId != null">#{toUserId},</if>
+            <if test="toUserName != null and toUserName != ''">#{toUserName},</if>
+            <if test="attitude != null">#{attitude},</if>
+            <if test="content != null and content != ''">#{content},</if>
+            <if test="deleteStatu != null">#{deleteStatu},</if>
+            <if test="status != null">#{status},</if>
+            <if test="reviewStatu != null">#{reviewStatu},</if>
+            <if test="likes != null">#{likes},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="deleteTime != null">#{deleteTime},</if>
+            <if test="ip != null and ip != ''">#{ip},</if>
+        </trim>
+        </script>
+    """)
+    int insertCommentUser(CommentUser commentUser);
 
 
 
+    @Update("UPDATE ${table} SET deleteStatu = #{status} WHERE id = #{id}")
+    int updateCommentDeleteStatus(
+            @Param("table") String table,
+            @Param("id") Integer id,
+            @Param("status") Integer status
+    );
+
+    // ====================== 评论举报（统一通用方法） ======================
+    @Update("UPDATE ${table} SET reviewStatu = 1 WHERE id = #{id}")
+    int reportComment(
+            @Param("table") String table,
+            @Param("id") Integer id
+    );
+
+    @Insert("INSERT INTO favorite (userId, targetId, type, status, updateTime, ip) " +
+            "VALUES (#{userId}, #{targetId}, #{type}, 1, NOW(), #{ip}) " +
+            "ON DUPLICATE KEY UPDATE " +
+            "status = IF(status = 1, 0, 1), " +
+            "updateTime = NOW()")
+    int toggleFavorite(Favorite favorite);
+
+    @Insert("INSERT INTO likes (userId, targetId, type, status, updateTime, ip) " +
+            "VALUES (#{userId}, #{targetId}, #{type}, 1, NOW(), #{ip}) " +
+            "ON DUPLICATE KEY UPDATE " +
+            "status = IF(status = 1, 0, 1), " +
+            "updateTime = NOW()")
+    int toggleLike(Likes likes);
+
+
+    @Insert("<script>" +
+            "INSERT INTO comment_post " +
+            "<trim prefix='(' suffix=')' suffixOverrides=','>" +
+            "   <if test='userId != null'>userId,</if>" +
+            "   <if test='userName != null'>userName,</if>" +
+            "   <if test='postId != null'>postId,</if>" +
+            "   <if test='index != null'>`index`,</if>" +
+            "   <if test='content != null'>content,</if>" +
+            "   <if test='ip != null'>ip,</if>" +
+            "</trim>" +
+            "<trim prefix='VALUES (' suffix=')' suffixOverrides=','>" +
+            "   <if test='userId != null'>#{userId},</if>" +
+            "   <if test='userName != null'>#{userName},</if>" +
+            "   <if test='postId != null'>#{postId},</if>" +
+            "   <if test='index != null'>#{index},</if>" +
+            "   <if test='content != null'>#{content},</if>" +
+            "   <if test='ip != null'>#{ip},</if>" +
+            "</trim>" +
+            "</script>")
+    int insertCommentPost(CommentPost commentPost);
 }

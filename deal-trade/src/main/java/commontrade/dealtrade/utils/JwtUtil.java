@@ -21,7 +21,7 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private long expirationTime;
 
-    public String genJwt(Map<String, Object> claims) {
+    public String genJwt(Map claims) {
         Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
         return Jwts.builder()
                 .claims(claims)

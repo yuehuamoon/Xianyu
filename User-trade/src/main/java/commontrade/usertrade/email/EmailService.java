@@ -2,6 +2,7 @@ package commontrade.usertrade.email;
 
 
 import cn.hutool.core.util.RandomUtil;
+import commontrade.commonyh.pojo.dto.EmailCode;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.TimeUnit;
 
 @Component
-public class Service {
+public class EmailService {
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
@@ -23,7 +24,7 @@ public class Service {
     private final String FROM = "yuehua@94746424.xyz";
 
     // 构造器注入（Spring3推荐）
-    public Service(JavaMailSender javaMailSender) {
+    public EmailService(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
     }
 
@@ -46,18 +47,18 @@ public class Service {
         helper.setTo(to);
         helper.setSubject("【账号验证】您的验证码");
         helper.setText("您的验证码是：" + code + "，5分钟内有效", false);
-
+        System.out.println(code+to);
         javaMailSender.send(message);
     }
 
-    public boolean checkEmailCode(String to, String code) throws MessagingException {
-        String key = stringRedisTemplate.opsForValue().get("email:code:"+ to);
+    public boolean checkEmailCode(EmailCode emailCode) throws MessagingException {
+        String key = stringRedisTemplate.opsForValue().get("email:code:"+ emailCode.getEmail());
 
         if (key == null) {
             return false;
         }
-        if (key.equals(code)) {
-            stringRedisTemplate.delete("email:code:"+ to);
+        if (key.equals(emailCode.getCode())) {
+            stringRedisTemplate.delete("email:code:"+ emailCode.getEmail());
             return true;
         }
         return false;

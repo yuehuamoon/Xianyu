@@ -6,6 +6,7 @@ import commontrade.commonyh.pojo.dto.GoodDTO;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface ItemMapper {
@@ -13,6 +14,11 @@ public interface ItemMapper {
     @Select("select * from good_info limit #{page}, 10")
     List<Good> selectAll(int page);
 
+    @Select("select * from good_info")
+    List<Good> selectAllGood();
+
+    @Select("select * from good_info where seller_id=#{id}")
+    List<GoodDTO> selectBySellerId(int id);
     @Select("select * from good_info where label like concat('%', #{type}, '%')")
     List<GoodDTO> selectByLabel(String type);
 
@@ -28,10 +34,10 @@ public interface ItemMapper {
 
     @Insert("INSERT INTO good_info (" +
             "name, content, unit_price, count, img_url, label, " +
-            "status, address, view_count, favorite_count" +
+            "status, address, view_count, favorite_count, seller_id" +
             ") VALUES (" +
             "#{good.name}, #{good.content}, #{good.unitPrice}, #{good.count}, #{good.imgUrl}, #{good.label}, " +
-            "#{good.status}, #{good.address}, #{good.viewCount}, #{good.favoriteCount}" +
+            "#{good.status}, #{good.address}, #{good.viewCount}, #{good.favoriteCount}, #{good.sellerId}" +
             ")")
     int insertGood(@Param("good") GoodDTO good);
 
@@ -64,6 +70,17 @@ public interface ItemMapper {
     @Update("update good_info set status=#{status} where id=#{id}")
     int updateGood(int status, int id);
 
+    // 统计接口
+    @Select("select count(*) from good_info")
+    int countAll();
 
+    @Select("select count(*) from good_info where status = #{status}")
+    int countByStatus(@Param("status") int status);
+
+    @Select("select count(*) from good_info where label = #{label}")
+    int countByLabel(@Param("label") String label);
+
+    @Select("select label, count(*) as count from good_info group by label")
+    List<Map<String, Object>> countGroupByLabel();
 
 }

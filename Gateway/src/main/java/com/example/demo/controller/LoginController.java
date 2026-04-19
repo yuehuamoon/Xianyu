@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 public class LoginController {
@@ -21,7 +22,7 @@ public class LoginController {
         // 1. 校验用户名密码（省略真实逻辑）
         if ("admin".equals(phone) && "123456".equals(password)) {
             // 2. 构建JWT载荷
-            Map<String, Object> claims = new HashMap<>();
+            Map claims = new HashMap<>();
             claims.put("userId", "1001");
             claims.put("phone", phone);
             claims.put("role", "admin");

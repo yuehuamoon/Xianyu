@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 
 @Component
 public class JwtUtil {
@@ -23,7 +24,7 @@ public class JwtUtil {
     private long expirationTime;
 
     // 生成JWT Token
-    public String genJwt(Map<String, Object> claims) {
+    public String genJwt(Map<String, Objects> claims) {
         Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
 
         return Jwts.builder()

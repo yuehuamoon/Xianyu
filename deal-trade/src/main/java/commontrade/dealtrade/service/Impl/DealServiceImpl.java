@@ -138,5 +138,21 @@ public class DealServiceImpl implements DealService {
         return 0;
     }
 
+    // 统计方法实现
+    @Override
+    public int countAll() {
+        return dealMapper.countAll();
+    }
+
+    @Override
+    public int countByStatus(int status) {
+        return dealMapper.countByStatus(status);
+    }
+
+    @Override
+    public Long sumCompletedAmount() {
+        return dealMapper.sumCompletedAmount();
+    }
+
 
 }
