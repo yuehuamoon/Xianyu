@@ -48,6 +48,11 @@ export default defineConfig({
         bypass: (req) => {
           if (req.method === 'GET') return req.url
         }
+      },
+      '/recommend': {
+        target: 'http://127.0.0.1:8088',
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/recommend/, '/user/recommend'),
       }
     }
   },

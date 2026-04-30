@@ -57,7 +57,6 @@
       </div>
     </div>
 
-
     <footer class="footer">
 
     </footer>
@@ -143,7 +142,7 @@ function onWindowScroll() {
     loadPage()
   }
 
-  
+
 }
 
 onMounted(() => {

@@ -1,12 +1,47 @@
 <!-- src/layouts/MainLayout.vue -->
 <script setup>
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 
 const search = ref('');
 const isCategoryOpen = ref(false);
 const router = useRouter();
-const route = useRoute();
+
+// 用户头像：取 nickname 第一个字
+const avatarChar = ref('');
+const nickname = ref('');
+
+function parseJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+}
+
+onMounted(() => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    const userInfo = parseJwt(token);
+    if (userInfo) {
+      nickname.value = userInfo.nickName || userInfo.realName || '';
+      avatarChar.value = nickname.value.charAt(0) || '';
+    }
+  }
+});
+
+const handleLogout = () => {
+  localStorage.removeItem('token');
+  router.push('/login');
+};
 
 const glowPosition = reactive({
   x: 0,
@@ -61,19 +96,26 @@ const handleSearch = () => {
         <li class="header-item">
           <router-link to="/community" class="nav-link">社区</router-link>
         </li>
+        <li class="header-item">
+          <router-link to="/recommend" class="nav-link">推荐</router-link>
+        </li>
       </ul>
       
       <!-- 搜索框 -->
       <ul class="header-right">
         <li class="search">
-          <input 
-            v-model="search" 
-            type="text" 
-            placeholder="输入商品名称搜索" 
+          <input
+            v-model="search"
+            type="text"
+            placeholder="输入商品名称搜索"
             class="search-input"
             @keydown.enter="handleSearch"
           />
           <button class="search-btn" @click="handleSearch">搜索</button>
+        </li>
+        <li v-if="avatarChar" class="user-area">
+          <div class="avatar" :title="nickname">{{ avatarChar }}</div>
+          <button class="logout-btn" @click="handleLogout">登出</button>
         </li>
       </ul>
     </nav>
@@ -311,5 +353,46 @@ const handleSearch = () => {
 .dropdown-link:hover {
   background: rgba(236, 72, 153, 0.1);
   color: #ec4899;
+}
+
+.user-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 8px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f472b6 0%, #ec4899 50%, #f43f5e 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.25);
+  cursor: default;
+  user-select: none;
+}
+
+.logout-btn {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(236, 72, 153, 0.15);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  color: #f43f5e;
+  background: rgba(244, 63, 94, 0.08);
+  border-color: rgba(244, 63, 94, 0.3);
 }
 </style>
